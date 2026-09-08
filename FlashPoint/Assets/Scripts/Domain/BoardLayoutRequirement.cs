@@ -33,6 +33,22 @@ public static class BoardLayoutRequirement
         public WallState EstadoNuevo;
     }
 
+    public struct FireCellPlacement
+    {
+        public int Row;
+        public int Col;
+        public CellValue Estado;
+        public Vector3 Position;
+    }
+
+    public struct FireCellChange
+    {
+        public int Row;
+        public int Col;
+        public CellValue EstadoAnterior;
+        public CellValue EstadoNuevo;
+    }
+
     // Grid fisico = aro exterior de 1 celda + interior jugable (filas x columnas).
     public static List<FloorPlacement> ComputeFloorPositions(GameState state)
     {
@@ -87,6 +103,10 @@ public static class BoardLayoutRequirement
 
     public static WallPlacement ComputeSingleWallPlacement(int row, int col, bool esVertical, int columnas, WallState estado)
     {
+        bool esPuerta = estado == WallState.PuertaCerrada || estado == WallState.PuertaAbierta;
+        Quaternion rotacionVertical = esPuerta ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
+        Quaternion rotacionHorizontal = esPuerta ? Quaternion.identity : Quaternion.Euler(0f, 90f, 0f);
+
         if (esVertical)
         {
             int physRow = row + 1;
@@ -98,7 +118,7 @@ public static class BoardLayoutRequirement
                 EsVertical = true,
                 Estado = estado,
                 Position = new Vector3(xLimite, 0f, physRow * CELL_SIZE),
-                Rotation = Quaternion.identity, 
+                Rotation = rotacionVertical,
             };
         }
         else
@@ -112,7 +132,7 @@ public static class BoardLayoutRequirement
                 EsVertical = false,
                 Estado = estado,
                 Position = new Vector3(physCol * CELL_SIZE, 0f, zLimite),
-                Rotation = Quaternion.Euler(0f, 90f, 0f),
+                Rotation = rotacionHorizontal,
             };
         }
     }
@@ -160,6 +180,58 @@ public static class BoardLayoutRequirement
                     EsVertical = false,
                     EstadoAnterior = (WallState)anterior,
                     EstadoNuevo = (WallState)nuevo,
+                });
+            }
+        }
+
+        return cambios;
+    }
+
+    public static List<FireCellPlacement> ComputeFireCellPlacements(GameState state)
+    {
+        var resultado = new List<FireCellPlacement>();
+
+        for (int row = 0; row < state.filas; row++)
+        {
+            for (int col = 0; col < state.columnas; col++)
+            {
+                var estado = (CellValue)state.tablero[row * state.columnas + col];
+                if (estado != CellValue.Humo && estado != CellValue.Fuego) continue;
+
+                int physRow = row + 1;
+                int physCol = col + 1;
+                resultado.Add(new FireCellPlacement
+                {
+                    Row = row,
+                    Col = col,
+                    Estado = estado,
+                    Position = new Vector3(physCol * CELL_SIZE, 0f, physRow * CELL_SIZE),
+                });
+            }
+        }
+
+        return resultado;
+    }
+
+    public static List<FireCellChange> ComputeFireDiff(int[] tableroAnterior, int[] tableroNuevo, int filas, int columnas)
+    {
+        var cambios = new List<FireCellChange>();
+
+        for (int row = 0; row < filas; row++)
+        {
+            for (int col = 0; col < columnas; col++)
+            {
+                int idx = row * columnas + col;
+                int anterior = tableroAnterior[idx];
+                int nuevo = tableroNuevo[idx];
+                if (anterior == nuevo) continue;
+
+                cambios.Add(new FireCellChange
+                {
+                    Row = row,
+                    Col = col,
+                    EstadoAnterior = (CellValue)anterior,
+                    EstadoNuevo = (CellValue)nuevo,
                 });
             }
         }

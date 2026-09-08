@@ -7,7 +7,10 @@ public class BoardController : MonoBehaviour
     [SerializeField] GameObject sueloPrefab;
     [SerializeField] GameObject pastoPrefab;
     [SerializeField] GameObject paredPrefab;
-    [SerializeField] GameObject puertaPrefab;
+    [SerializeField] GameObject puertaCerradaPrefab;
+    [SerializeField] GameObject puertaAbiertaPrefab;
+    [SerializeField] GameObject fuegoPrefab;
+    [SerializeField] GameObject humoPrefab;
 
     [Header("Depuracion (sin servidor Python)")]
     [SerializeField] TextAsset debugJsonInicial;
@@ -15,10 +18,12 @@ public class BoardController : MonoBehaviour
 
     readonly Dictionary<(int row, int col), GameObject> paredesV = new Dictionary<(int row, int col), GameObject>();
     readonly Dictionary<(int row, int col), GameObject> paredesH = new Dictionary<(int row, int col), GameObject>();
+    readonly Dictionary<(int row, int col), GameObject> fuegoHumo = new Dictionary<(int row, int col), GameObject>();
     readonly List<GameObject> pisos = new List<GameObject>();
 
     int[] ultimoVertical;
     int[] ultimoHorizontal;
+    int[] ultimoTablero;
     int filasCache;
     int columnasCache;
 
@@ -39,8 +44,14 @@ public class BoardController : MonoBehaviour
             dict[(muro.Row, muro.Col)] = InstanciarMuro(muro);
         }
 
+        foreach (var celda in BoardLayoutRequirement.ComputeFireCellPlacements(state))
+        {
+            fuegoHumo[(celda.Row, celda.Col)] = InstanciarFuegoHumo(celda);
+        }
+
         ultimoVertical = (int[])state.paredesVerticales.Clone();
         ultimoHorizontal = (int[])state.paredesHorizontales.Clone();
+        ultimoTablero = (int[])state.tablero.Clone();
         filasCache = state.filas;
         columnasCache = state.columnas;
     }
@@ -57,60 +68,65 @@ public class BoardController : MonoBehaviour
             AplicarCambio(cambio);
         }
 
+        var cambiosFuego = BoardLayoutRequirement.ComputeFireDiff(
+            ultimoTablero, nuevo.tablero, filasCache, columnasCache);
+
+        foreach (var cambio in cambiosFuego)
+        {
+            AplicarCambioFuego(cambio);
+        }
+
         ultimoVertical = (int[])nuevo.paredesVerticales.Clone();
         ultimoHorizontal = (int[])nuevo.paredesHorizontales.Clone();
+        ultimoTablero = (int[])nuevo.tablero.Clone();
+    }
+
+    void AplicarCambioFuego(BoardLayoutRequirement.FireCellChange cambio)
+    {
+        var key = (cambio.Row, cambio.Col);
+        if (fuegoHumo.TryGetValue(key, out var existente) && existente != null)
+        {
+            Destroy(existente);
+        }
+        fuegoHumo.Remove(key);
+
+        if (cambio.EstadoNuevo != CellValue.Humo && cambio.EstadoNuevo != CellValue.Fuego) return;
+
+        var celda = new BoardLayoutRequirement.FireCellPlacement
+        {
+            Row = cambio.Row,
+            Col = cambio.Col,
+            Estado = cambio.EstadoNuevo,
+            Position = new Vector3(
+                (cambio.Col + 1) * BoardLayoutRequirement.CELL_SIZE,
+                0f,
+                (cambio.Row + 1) * BoardLayoutRequirement.CELL_SIZE),
+        };
+        fuegoHumo[key] = InstanciarFuegoHumo(celda);
+    }
+
+    GameObject InstanciarFuegoHumo(BoardLayoutRequirement.FireCellPlacement celda)
+    {
+        var prefab = celda.Estado == CellValue.Fuego ? fuegoPrefab : humoPrefab;
+        return Instantiate(prefab, celda.Position, Quaternion.identity, transform);
     }
 
     void AplicarCambio(BoardLayoutRequirement.WallChange cambio)
     {
+        // Cada estado (Pared/PuertaCerrada/PuertaAbierta) es un prefab distinto, asi que
+        // cualquier cambio real de estado se resuelve igual: destruir lo que habia (si
+        // habia) e instanciar el prefab correcto para el nuevo estado.
         var dict = cambio.EsVertical ? paredesV : paredesH;
         var key = (cambio.Row, cambio.Col);
-        dict.TryGetValue(key, out var existente);
-
-        bool eraPuerta = cambio.EstadoAnterior == WallState.PuertaCerrada || cambio.EstadoAnterior == WallState.PuertaAbierta;
-
-        switch (cambio.EstadoNuevo)
+        if (dict.TryGetValue(key, out var existente) && existente != null)
         {
-            case WallState.Abierto:
-                // pared destruida o puerta removida
-                if (existente != null) Destroy(existente);
-                dict.Remove(key);
-                break;
-
-            case WallState.Pared:
-                if (eraPuerta || existente == null)
-                {
-                    if (existente != null) Destroy(existente);
-                    dict[key] = InstanciarMuroPorIndice(cambio.Row, cambio.Col, cambio.EsVertical, cambio.EstadoNuevo);
-                }
-                break;
-
-            case WallState.PuertaCerrada:
-                if (!eraPuerta || existente == null)
-                {
-                    if (existente != null) Destroy(existente);
-                    dict[key] = InstanciarMuroPorIndice(cambio.Row, cambio.Col, cambio.EsVertical, cambio.EstadoNuevo);
-                }
-                else
-                {
-                    existente.GetComponent<DoorController>()?.SetOpen(false);
-                }
-                break;
-
-            case WallState.PuertaAbierta:
-                if (eraPuerta && existente != null)
-                {
-                    existente.GetComponent<DoorController>()?.SetOpen(true);
-                }
-                else
-                {
-                    if (existente != null) Destroy(existente);
-                    var creado = InstanciarMuroPorIndice(cambio.Row, cambio.Col, cambio.EsVertical, cambio.EstadoNuevo);
-                    creado.GetComponent<DoorController>()?.SetOpen(true);
-                    dict[key] = creado;
-                }
-                break;
+            Destroy(existente);
         }
+        dict.Remove(key);
+
+        if (cambio.EstadoNuevo == WallState.Abierto) return;
+
+        dict[key] = InstanciarMuroPorIndice(cambio.Row, cambio.Col, cambio.EsVertical, cambio.EstadoNuevo);
     }
 
     GameObject InstanciarMuroPorIndice(int row, int col, bool esVertical, WallState estado)
@@ -121,17 +137,16 @@ public class BoardController : MonoBehaviour
 
     GameObject InstanciarMuro(BoardLayoutRequirement.WallPlacement muro)
     {
-        bool esPuerta = muro.Estado == WallState.PuertaCerrada || muro.Estado == WallState.PuertaAbierta;
-        var prefab = esPuerta ? puertaPrefab : paredPrefab;
+        GameObject prefab = muro.Estado switch
+        {
+            WallState.PuertaCerrada => puertaCerradaPrefab,
+            WallState.PuertaAbierta => puertaAbiertaPrefab,
+            _ => paredPrefab,
+        };
 
         var go = Instantiate(prefab, transform);
         go.transform.position = new Vector3(muro.Position.x, prefab.transform.position.y, muro.Position.z);
         go.transform.rotation = muro.Rotation;
-
-        if (esPuerta)
-        {
-            go.GetComponent<DoorController>()?.SetOpen(muro.Estado == WallState.PuertaAbierta);
-        }
 
         return go;
     }
@@ -140,10 +155,12 @@ public class BoardController : MonoBehaviour
     {
         foreach (var kv in paredesV) if (kv.Value != null) Destroy(kv.Value);
         foreach (var kv in paredesH) if (kv.Value != null) Destroy(kv.Value);
+        foreach (var kv in fuegoHumo) if (kv.Value != null) Destroy(kv.Value);
         foreach (var piso in pisos) if (piso != null) Destroy(piso);
 
         paredesV.Clear();
         paredesH.Clear();
+        fuegoHumo.Clear();
         pisos.Clear();
     }
 

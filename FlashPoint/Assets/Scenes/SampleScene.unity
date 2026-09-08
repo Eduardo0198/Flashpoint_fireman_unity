@@ -536,6 +536,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 504227823}
+  - component: {fileID: 504227824}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -558,6 +559,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &504227824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504227822}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b69a4e0c9b293d248b16c201b9626095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  board: {fileID: 2032785144}
 --- !u!1 &659741251
 GameObject:
   m_ObjectHideFlags: 0
@@ -939,6 +953,59 @@ Transform:
   - {fileID: 903945298}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2032785143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2032785145}
+  - component: {fileID: 2032785144}
+  m_Layer: 0
+  m_Name: Board
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2032785144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 541cb4b368d294415b6dda31bb574e95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoardController
+  sueloPrefab: {fileID: 299313825180526568, guid: 40e3e210e24b84c84a0956b28cc03e91, type: 3}
+  pastoPrefab: {fileID: 9157923028876677735, guid: 50bf77c532ac8419e8da5e190f72b24b, type: 3}
+  paredPrefab: {fileID: 230621043267372158, guid: 993e35063417d450c8d65b924e4d5f46, type: 3}
+  puertaCerradaPrefab: {fileID: 3785462387332099272, guid: fe6e79ef958844fbeb655fa9cf5ae84d, type: 3}
+  puertaAbiertaPrefab: {fileID: 8655998613175324767, guid: 4d13fce9c70aa4005bc0db28ec320653, type: 3}
+  fuegoPrefab: {fileID: 8412986659304928547, guid: e9acc71dbbeb04f8992500e324c741e1, type: 3}
+  humoPrefab: {fileID: 4077289537731090250, guid: c12453c3139c643e7a6faf06403fcf87, type: 3}
+  debugJsonInicial: {fileID: 4900000, guid: 7af9133a9cd9044b6a150fa47be35b7f, type: 3}
+  debugJsonActualizado: {fileID: 4900000, guid: 43f7001e912e54a53b7845a982e039bf, type: 3}
+--- !u!4 &2032785145
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2032785143}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 16.53781, y: 0, z: 38.62164}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -954,3 +1021,4 @@ SceneRoots:
   - {fileID: 1024435178}
   - {fileID: 669324384}
   - {fileID: 446408343}
+  - {fileID: 2032785145}
