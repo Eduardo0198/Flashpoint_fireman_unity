@@ -3,7 +3,8 @@ using UnityEngine.Networking;
 using System;
 using System.Collections;
 
-public static class APIHelper
+// Repository: administra la fuente de datos del estado del juego
+public static class GameStateRepository
 {
     const string BASE_URL = "http://localhost:5000";
 
@@ -14,7 +15,7 @@ public static class APIHelper
             yield return peticion.SendWebRequest();
             if (peticion.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Falló GET /game/state: " + peticion.error);
+                Debug.LogError("Fallo GET /game/state: " + peticion.error);
                 alTerminar(null);
                 yield break;
             }
@@ -29,7 +30,7 @@ public static class APIHelper
             yield return peticion.SendWebRequest();
             if (peticion.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Falló POST /game/step: " + peticion.error);
+                Debug.LogError("Fallo POST /game/step: " + peticion.error);
                 alTerminar(null);
                 yield break;
             }
