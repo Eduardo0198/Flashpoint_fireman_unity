@@ -5,4 +5,6 @@ public enum WallState
     Pared = 1,
     PuertaCerrada = 2,
     PuertaAbierta = 3,
+    ParedDanada = 4,
+    ParedDestruida = 5,
 }

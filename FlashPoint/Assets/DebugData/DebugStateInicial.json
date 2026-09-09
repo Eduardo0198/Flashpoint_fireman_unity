@@ -3,7 +3,19 @@
   "filas": 6,
   "columnas": 8,
   "tablero": [0,0,0,0,0,0,2,0, 0,0,0,0,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,2,0,0,0,0,0, 0,2,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+  "pois": [0,0,0,0,0,0,0,0, 0,2,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,1,0, 0,0,0,0,2,0,0,0, 0,0,0,0,0,0,0,0],
+  "poisRevelado": [false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,true,false,false,false, false,false,false,false,false,false,false,false],
   "paredesVerticales": [1,0,2,0,0,1,0,0,1, 1,0,0,0,0,1,0,0,1, 1,0,1,0,0,0,0,0,1, 1,0,1,0,0,1,0,0,1, 1,0,0,0,0,1,0,0,1, 1,0,1,0,0,0,0,0,1],
   "paredesHorizontales": [1,1,1,2,1,1,1,1, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 1,1,1,1,2,1,1,1],
-  "agentes": []
+  "agentes": [
+    { "id": 1, "x": 0, "y": 0, "actionPoints": 4 },
+    { "id": 2, "x": 1, "y": 0, "actionPoints": 8 },
+    { "id": 3, "x": 2, "y": 0, "actionPoints": 0 },
+    { "id": 4, "x": 3, "y": 0, "actionPoints": 2 },
+    { "id": 5, "x": 4, "y": 0, "actionPoints": 6 },
+    { "id": 6, "x": 5, "y": 0, "actionPoints": 3 }
+  ],
+  "victimasRescatadas": 0,
+  "victimasPerdidas": 0,
+  "danoEstructura": 5
 }

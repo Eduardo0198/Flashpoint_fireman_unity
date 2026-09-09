@@ -3,6 +3,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] BoardController board;
+    [SerializeField] TurnoController turnoController;
 
     bool inicializado;
 
@@ -13,7 +14,13 @@ public class GameManager : MonoBehaviour
 
     public void OnNextTurnButton()
     {
-        StartCoroutine(GameStateRepository.PostStep(RenderState));
+        StartCoroutine(GameStateRepository.PostStep(OnTurnoRecibido));
+    }
+
+    void OnTurnoRecibido(TurnoPayload payload)
+    {
+        if (payload == null) return;
+        turnoController.IniciarTurno(payload);
     }
 
     void RenderState(GameState state)
@@ -28,11 +35,6 @@ public class GameManager : MonoBehaviour
         else
         {
             board.ApplyUpdate(state);
-        }
-
-        foreach (var a in state.agentes)
-        {
-     
         }
     }
 }

@@ -23,7 +23,7 @@ public static class GameStateRepository
         }
     }
 
-    public static IEnumerator PostStep(Action<GameState> alTerminar)
+    public static IEnumerator PostStep(Action<TurnoPayload> alTerminar)
     {
         using (UnityWebRequest peticion = UnityWebRequest.PostWwwForm(BASE_URL + "/game/step", ""))
         {
@@ -34,7 +34,7 @@ public static class GameStateRepository
                 alTerminar(null);
                 yield break;
             }
-            alTerminar(JsonUtility.FromJson<GameState>(peticion.downloadHandler.text));
+            alTerminar(JsonUtility.FromJson<TurnoPayload>(peticion.downloadHandler.text));
         }
     }
 }

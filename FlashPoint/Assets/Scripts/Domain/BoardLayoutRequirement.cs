@@ -8,6 +8,14 @@ public static class BoardLayoutRequirement
 {
     public const float CELL_SIZE = 5f;
 
+    
+    public static Vector3 CellCenterWorldPosition(int row, int col)
+    {
+        int physRow = row + 1;
+        int physCol = col + 1;
+        return new Vector3(physCol * CELL_SIZE, 0f, physRow * CELL_SIZE);
+    }
+
     public struct FloorPlacement
     {
         public Vector3 Position;
@@ -49,6 +57,25 @@ public static class BoardLayoutRequirement
         public CellValue EstadoNuevo;
     }
 
+    public struct PoiPlacement
+    {
+        public int Row;
+        public int Col;
+        public PoiTipo Tipo;
+        public bool Revelado;
+        public Vector3 Position;
+    }
+
+    public struct PoiChange
+    {
+        public int Row;
+        public int Col;
+        public PoiTipo TipoAnterior;
+        public bool RevAnterior;
+        public PoiTipo TipoNuevo;
+        public bool RevNuevo;
+    }
+
     // Grid fisico = aro exterior de 1 celda + interior jugable (filas x columnas).
     public static List<FloorPlacement> ComputeFloorPositions(GameState state)
     {
@@ -80,7 +107,7 @@ public static class BoardLayoutRequirement
             for (int colBoundary = 0; colBoundary <= state.columnas; colBoundary++)
             {
                 int estado = state.paredesVerticales[row * (state.columnas + 1) + colBoundary];
-                if (estado == (int)WallState.Abierto) continue;
+                if (estado == (int)WallState.Abierto || estado == (int)WallState.ParedDestruida) continue;
 
                 resultado.Add(ComputeSingleWallPlacement(row, colBoundary, esVertical: true, state.columnas, (WallState)estado));
             }
@@ -92,7 +119,7 @@ public static class BoardLayoutRequirement
             for (int col = 0; col < state.columnas; col++)
             {
                 int estado = state.paredesHorizontales[rowBoundary * state.columnas + col];
-                if (estado == (int)WallState.Abierto) continue;
+                if (estado == (int)WallState.Abierto || estado == (int)WallState.ParedDestruida) continue;
 
                 resultado.Add(ComputeSingleWallPlacement(rowBoundary, col, esVertical: false, state.columnas, (WallState)estado));
             }
@@ -198,14 +225,12 @@ public static class BoardLayoutRequirement
                 var estado = (CellValue)state.tablero[row * state.columnas + col];
                 if (estado != CellValue.Humo && estado != CellValue.Fuego) continue;
 
-                int physRow = row + 1;
-                int physCol = col + 1;
                 resultado.Add(new FireCellPlacement
                 {
                     Row = row,
                     Col = col,
                     Estado = estado,
-                    Position = new Vector3(physCol * CELL_SIZE, 0f, physRow * CELL_SIZE),
+                    Position = CellCenterWorldPosition(row, col),
                 });
             }
         }
@@ -232,6 +257,67 @@ public static class BoardLayoutRequirement
                     Col = col,
                     EstadoAnterior = (CellValue)anterior,
                     EstadoNuevo = (CellValue)nuevo,
+                });
+            }
+        }
+
+        return cambios;
+    }
+
+    // pois/poisRevelado: interior filas x columnas, indice = row*columnas+col (0-based),
+    // matriz separada de tablero (misma convencion del notebook: matrixPois/matrixPoisRevelado).
+    public static List<PoiPlacement> ComputePoiPlacements(GameState state)
+    {
+        var resultado = new List<PoiPlacement>();
+
+        for (int row = 0; row < state.filas; row++)
+        {
+            for (int col = 0; col < state.columnas; col++)
+            {
+                int idx = row * state.columnas + col;
+                var tipo = (PoiTipo)state.pois[idx];
+                if (tipo == PoiTipo.Vacio) continue;
+
+                resultado.Add(new PoiPlacement
+                {
+                    Row = row,
+                    Col = col,
+                    Tipo = tipo,
+                    Revelado = state.poisRevelado[idx],
+                    Position = CellCenterWorldPosition(row, col),
+                });
+            }
+        }
+
+        return resultado;
+    }
+
+    public static List<PoiChange> ComputePoiDiff(
+        int[] poisAnterior, int[] poisNuevo,
+        bool[] reveladoAnterior, bool[] reveladoNuevo,
+        int filas, int columnas)
+    {
+        var cambios = new List<PoiChange>();
+
+        for (int row = 0; row < filas; row++)
+        {
+            for (int col = 0; col < columnas; col++)
+            {
+                int idx = row * columnas + col;
+                int tipoAnterior = poisAnterior[idx];
+                int tipoNuevo = poisNuevo[idx];
+                bool revAnterior = reveladoAnterior[idx];
+                bool revNuevo = reveladoNuevo[idx];
+                if (tipoAnterior == tipoNuevo && revAnterior == revNuevo) continue;
+
+                cambios.Add(new PoiChange
+                {
+                    Row = row,
+                    Col = col,
+                    TipoAnterior = (PoiTipo)tipoAnterior,
+                    RevAnterior = revAnterior,
+                    TipoNuevo = (PoiTipo)tipoNuevo,
+                    RevNuevo = revNuevo,
                 });
             }
         }
