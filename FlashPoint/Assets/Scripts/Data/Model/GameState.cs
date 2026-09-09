@@ -17,4 +17,8 @@ public class GameState
     public int[] paredesHorizontales;
 
     public AgentState[] agentes;
+
+    public int victimasRescatadas;
+    public int victimasPerdidas;
+    public int danoEstructura; // 0-24, colapsa el edificio en 24 (derrota)
 }

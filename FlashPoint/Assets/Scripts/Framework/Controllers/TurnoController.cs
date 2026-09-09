@@ -8,6 +8,8 @@ public class TurnoController : MonoBehaviour
     [SerializeField] BoardController board;
     [SerializeField] DiceRoller diceRoller;
     [SerializeField] AgentRosterController roster;
+    [SerializeField] AgentesController agentesController;
+    [SerializeField] MarcadoresController marcadores;
 
     [Header("Ritmo")]
     public float delayEntreEventos = 1.5f; // pausa entre cada evento del turno, sin importar el tipo
@@ -39,7 +41,11 @@ public class TurnoController : MonoBehaviour
         payloadActual = payload;
         pausado = false;
 
-        if (roster != null && payload.estadoFinal != null) roster.Actualizar(payload.estadoFinal.agentes);
+        if (payload.estadoFinal != null)
+        {
+            if (roster != null) roster.Actualizar(payload.estadoFinal.agentes);
+            if (marcadores != null) marcadores.Actualizar(payload.estadoFinal);
+        }
 
         reproduccionActual = StartCoroutine(ReproducirTurnoCoroutine(payload));
     }
@@ -145,13 +151,58 @@ public class TurnoController : MonoBehaviour
                 }
                 break;
 
-            case "agente_mueve":
-            case "agente_apaga_fuego":
-            case "agente_abre_puerta":
-            case "agente_cierra_puerta":
+            case "agente_recoge_victima":
+                board.AplicarCambioPoi(new BoardLayoutRequirement.PoiChange
+                {
+                    Row = evento.row,
+                    Col = evento.col,
+                    TipoNuevo = PoiTipo.Vacio,
+                });
+                if (agentesController != null) agentesController.SetCargandoVictima(evento.agenteId, true);
+                break;
+
+            case "victima_rescatada":
+                if (agentesController != null) agentesController.SetCargandoVictima(evento.agenteId, false);
+                break;
+
             case "bombero_muere":
-            
-                Debug.Log($"TurnoController: evento pendiente de implementar '{evento.tipo}'.");
+                if (agentesController != null) agentesController.RemoverAgente(evento.agenteId);
+                break;
+
+            case "agente_mueve":
+                if (agentesController != null)
+                {
+                    yield return agentesController.MoverAgente(evento.agenteId, evento.row, evento.col);
+                }
+                break;
+
+            case "agente_apaga_fuego":
+                board.AplicarCambioFuego(new BoardLayoutRequirement.FireCellChange
+                {
+                    Row = evento.row,
+                    Col = evento.col,
+                    EstadoNuevo = CellValue.Vacio,
+                });
+                break;
+
+            case "agente_abre_puerta":
+                board.AplicarCambio(new BoardLayoutRequirement.WallChange
+                {
+                    Row = evento.row,
+                    Col = evento.col,
+                    EsVertical = evento.esVertical,
+                    EstadoNuevo = WallState.PuertaAbierta,
+                });
+                break;
+
+            case "agente_cierra_puerta":
+                board.AplicarCambio(new BoardLayoutRequirement.WallChange
+                {
+                    Row = evento.row,
+                    Col = evento.col,
+                    EsVertical = evento.esVertical,
+                    EstadoNuevo = WallState.PuertaCerrada,
+                });
                 break;
 
             default:

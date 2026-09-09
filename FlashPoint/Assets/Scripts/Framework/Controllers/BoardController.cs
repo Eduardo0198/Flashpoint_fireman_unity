@@ -16,7 +16,10 @@ public class BoardController : MonoBehaviour
     [SerializeField] GameObject poiOcultoPrefab;
     [SerializeField] GameObject poiVictimaPrefab;
     [SerializeField] GameObject poiFalsaPrefab;
+    [SerializeField] float alturaPoi = 0.1f;
     [SerializeField] AgentRosterController roster;
+    [SerializeField] AgentesController agentesController;
+    [SerializeField] MarcadoresController marcadores;
 
     [Header("Depuracion (sin servidor Python)")]
     [SerializeField] TextAsset debugJsonInicial;
@@ -72,6 +75,8 @@ public class BoardController : MonoBehaviour
         columnasCache = state.columnas;
 
         if (roster != null) roster.Actualizar(state.agentes);
+        if (agentesController != null) agentesController.BuildInitial(state.agentes);
+        if (marcadores != null) marcadores.Actualizar(state);
     }
 
     public void ApplyUpdate(GameState nuevo)
@@ -109,6 +114,8 @@ public class BoardController : MonoBehaviour
         ultimoPoisRevelado = (bool[])nuevo.poisRevelado.Clone();
 
         if (roster != null) roster.Actualizar(nuevo.agentes);
+        if (agentesController != null) agentesController.Actualizar(nuevo.agentes);
+        if (marcadores != null) marcadores.Actualizar(nuevo);
     }
 
     public void AplicarCambioPoi(BoardLayoutRequirement.PoiChange cambio)
@@ -161,7 +168,8 @@ public class BoardController : MonoBehaviour
             : poi.Tipo == PoiTipo.Victima ? poiVictimaPrefab
             : poiFalsaPrefab;
 
-        return Instantiate(prefab, poi.Position, Quaternion.identity, transform);
+        var posicion = new Vector3(poi.Position.x, alturaPoi, poi.Position.z);
+        return Instantiate(prefab, posicion, Quaternion.identity, transform);
     }
 
     public void AplicarCambioFuego(BoardLayoutRequirement.FireCellChange cambio)
