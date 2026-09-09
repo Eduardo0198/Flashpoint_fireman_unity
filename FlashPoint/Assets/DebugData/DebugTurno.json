@@ -1,0 +1,34 @@
+{
+  "turno": 1,
+  "eventos": [
+    { "tipo": "tirar_dados", "dado1": 3, "dado2": 5 },
+    { "tipo": "humo_cae", "row": 2, "col": 3 },
+    {
+      "tipo": "explosion",
+      "pasos": [
+        { "esPared": false, "row": 2, "col": 3, "estadoNuevo": 2 },
+        { "esPared": true, "row": 2, "col": 2, "esVertical": true, "estadoNuevo": 4 }
+      ]
+    },
+    { "tipo": "tirar_dados", "dado1": 6, "dado2": 8 },
+    { "tipo": "poi_cae", "row": 2, "col": 3, "tipoPoi": 2, "revelado": false, "apagaFuego": true }
+  ],
+  "estadoFinal": {
+    "turno": 1,
+    "filas": 6,
+    "columnas": 8,
+    "tablero": [0,0,0,0,0,0,2,0, 0,0,0,0,1,0,0,0, 0,0,0,0,0,0,0,0, 0,0,2,0,0,0,0,0, 0,2,0,0,0,0,0,0, 0,0,0,0,0,0,0,0],
+    "pois": [0,0,0,0,0,0,0,0, 0,2,0,0,0,0,0,0, 0,0,0,2,0,0,0,0, 0,0,0,0,0,0,1,0, 0,0,0,0,2,0,0,0, 0,0,0,0,0,0,0,0],
+    "poisRevelado": [false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,false,false,false,false, false,false,false,false,true,false,false,false, false,false,false,false,false,false,false,false],
+    "paredesVerticales": [1,0,2,0,0,1,0,0,1, 1,0,0,0,0,1,0,0,1, 1,0,4,0,0,0,0,0,1, 1,0,1,0,0,1,0,0,1, 1,0,0,0,0,1,0,0,1, 1,0,1,0,0,0,0,0,1],
+    "paredesHorizontales": [1,1,1,2,1,1,1,1, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0, 1,1,1,1,2,1,1,1],
+    "agentes": [
+      { "id": 1, "x": 0, "y": 0, "actionPoints": 2 },
+      { "id": 2, "x": 0, "y": 0, "actionPoints": 6 },
+      { "id": 3, "x": 0, "y": 0, "actionPoints": 0 },
+      { "id": 4, "x": 0, "y": 0, "actionPoints": 0 },
+      { "id": 5, "x": 0, "y": 0, "actionPoints": 4 },
+      { "id": 6, "x": 0, "y": 0, "actionPoints": 1 }
+    ]
+  }
+}
