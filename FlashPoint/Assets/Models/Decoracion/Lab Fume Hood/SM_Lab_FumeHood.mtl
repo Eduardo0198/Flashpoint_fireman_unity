@@ -1,0 +1,35 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 02.04.2022 19:52:22
+
+newmtl MI_Lab_FumeHood2
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka T_Lab_FumeHood2_BC.png
+	map_Kd T_Lab_FumeHood2_BC.png
+	map_bump T_Lab_FumeHood2_N.png
+	bump T_Lab_FumeHood2_N.png
+
+newmtl MI_Lab_FumeHood1
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.8100 0.8100 0.8100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka T_Lab_FumeHood1_BC.png
+	map_Kd T_Lab_FumeHood1_BC.png
+	map_d T_Lab_FumeHood1_M.png
+	map_bump T_Lab_FumeHood1_N.png
+	bump T_Lab_FumeHood1_N.png
