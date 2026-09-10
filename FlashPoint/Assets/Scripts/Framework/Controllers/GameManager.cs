@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,6 +10,9 @@ public class GameManager : MonoBehaviour
     [Header("Avance automatico de turnos")]
     [SerializeField] bool autoAvanzar = true;
     [SerializeField] float delayEntreTurnos = 1.5f; 
+    [Header("Escenas")]
+    [SerializeField] string nombreEscenaGanar = "WinScene";
+    [SerializeField] string nombreEscenaPerder = "GameOverScene";
 
     public int VictimasRescatadas { get; private set; }
     public int VictimasPerdidas { get; private set; }
@@ -63,10 +67,18 @@ public class GameManager : MonoBehaviour
             VictimasRescatadas = payload.estadoFinal.victimasRescatadas;
             VictimasPerdidas = payload.estadoFinal.victimasPerdidas;
 
-            if (VictimasRescatadas >= 7 || VictimasPerdidas >= 4 || payload.estadoFinal.danoEstructura >= 25)
-            {
-                partidaTerminada = true;
-            }
+        if (VictimasRescatadas >= 7)
+        {
+            partidaTerminada = true;
+            SceneManager.LoadScene(nombreEscenaGanar);
+            return;
+        }
+        if (VictimasPerdidas >= 4 || payload.estadoFinal.danoEstructura >= 24)
+        {
+            partidaTerminada = true;
+            SceneManager.LoadScene(nombreEscenaPerder);
+            return;
+        }
         }
 
         turnoController.IniciarTurno(payload);
