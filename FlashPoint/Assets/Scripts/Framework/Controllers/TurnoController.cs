@@ -29,6 +29,8 @@ public class TurnoController : MonoBehaviour
     TurnoPayload payloadActual;
     bool pausado;
 
+    public event System.Action OnTurnoTerminado;
+
     // Arranca la reproduccion de un turno. Si ya habia una corriendo, la corta
     // (no se acumulan turnos encimados).
     public void IniciarTurno(TurnoPayload payload)
@@ -73,6 +75,8 @@ public class TurnoController : MonoBehaviour
         {
             board.ApplyUpdate(payloadActual.estadoFinal);
         }
+
+        OnTurnoTerminado?.Invoke();
     }
 
     IEnumerator ReproducirTurnoCoroutine(TurnoPayload payload)
@@ -92,6 +96,7 @@ public class TurnoController : MonoBehaviour
         }
 
         reproduccionActual = null;
+        OnTurnoTerminado?.Invoke();
     }
 
     IEnumerator EsperarConPausa(float segundos)
